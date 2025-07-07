@@ -77,7 +77,7 @@ def destinations_distribution():
 def autocorrelation():
     pt.rcParams['text.usetex'] = True
     name_list = ['ETTh1.csv', 'ETTm1.csv', 'PEMS03.npz', 'Weather.csv', 'ILI.csv', 'Traffic.csv', 'Electricity.csv', 'Exchange_rate.csv', 
-                 '2025_03_12_stdev0.0/bufs_02_6.pkl', '2025_03_09_stdev0.5/bufs_02_0.pkl', 'fps30/f_0000_walk1.npz', 'fps30/n_0000_walk1.npz']
+                 '2025_03_12_stdev0.0/bufs_02_6.pkl', '2025_03_09_stdev0.5/bufs_02_0.pkl', 'fps30/n_0000_walk1.npz', 'fps30/f_0000_walk1.npz']
     fig, axes = pt.subplots(4,3, sharey=True, figsize=(19.2, 10.8))
     axes[0, 0].set_ylabel('Autocorrelation', fontsize=20, loc='center')
     axes[1, 0].set_ylabel('Autocorrelation', fontsize=20, loc='center')
@@ -181,11 +181,11 @@ def traj_and_real_pos():
 
         axes.plot(pos[:,3][epi_indices], label='Real')
         axes.plot(traj[:,3][epi_indices], label='Traj.')
-        if name[-5] == '6':
-            title = 'RP Walk Epi'
-        else:
-            title = 'RP Fall Epi'
-        axes.set_title(title, fontsize=20)
+        # if name[-5] == '6':
+        #     title = 'RP Walk Epi'
+        # else:
+        #     title = 'RP Fall Epi'
+        # axes.set_title(title, fontsize=20)
         axes.set_xlabel('Time (time steps)', fontsize=20, color='red', loc='center')
         axes.tick_params(axis='both', which='major', labelsize=20)
         axes.legend(fontsize=20)
@@ -231,11 +231,11 @@ def real_pos():
     for p in [2,5,11]:
         axes.plot(pos[:,p][epi_indices], label=f'{p}')
 
-    if name[-5] == '6':
-        title = 'RP Walk Epi'
-    else:
-        title = 'RP Fall Epi'
-    axes.set_title(title, fontsize=20)
+    # if name[-5] == '6':
+    #     title = 'RP Walk Epi'
+    # else:
+    #     title = 'RP Fall Epi'
+    # axes.set_title(title, fontsize=20)
     axes.set_xlabel('Time (time steps)', fontsize=20, color='red', loc='center')
     axes.tick_params(axis='both', which='major', labelsize=20)
     axes.legend(fontsize=20)
@@ -290,10 +290,55 @@ def fft_visualization(threshold):
         axes[2].imshow(img, cmap='gray')
         pt.show()
 
+def main_results_histogram():
+    pt.rcParams['text.usetex'] = True
+    performance, error = [], []
+    fig, ax = pt.subplots(1,1)
+    a = np.load('RP_Egofalls.npy')
+    b = np.load('VP_Egofalls.npy')
+    performance.append(a.mean()*100)
+    performance.append(b.mean()*100)
+    error.append(a.std()*100)
+    error.append(b.std()*100)
+
+    a = np.load('Flowformer_RP_lr0.0001_dmodel1024_dff256_pl12_qttest.npy')
+    b = np.load('Flowformer_VP_lr0.0001_dmodel512_dff512_pl30_qttest.npy')
+    performance.append(a.mean()*100)
+    performance.append(b.mean()*100)
+    error.append(a.std()*100)
+    error.append(b.std()*100)
+
+    a = np.load('TimesNet_RP_topk1_numk2_lr0.0001_dmodel256_dff1024_pl12_qttest.npy')
+    b = np.load('TimesNet_VP_topk2_numk4_lr0.01_dmodel256_dff64_pl30_qttest.npy')
+    performance.append(a.mean()*100)
+    performance.append(b.mean()*100)
+    error.append(a.std()*100)
+    error.append(b.std()*100)
+
+    a = np.load('RP_pl12_PVP_qttest.npy')
+    b = np.load('VP_pl30_PVP_qttest.npy')
+    performance.append(a.mean()*100)
+    performance.append(b.mean()*100)
+    error.append(a.std()*100)
+    error.append(b.std()*100)
+
+    models = ('Egoalls_RP', 'Egoalls_VP', 'Flowformer_RP', 'Flowformer_VP', 'TimesNet_RP', 'TimesNet_VP', 'Ours_RP', 'Ours_VP')
+    y_pos = np.arange(len(models))
+    cols = ['#C7DEE9', '#C7DEE9', '#A4D9F4', '#A4D9F4', '#7C94B7', '#7C94B7', '#32417A', '#32417A']
+    hbars = ax.barh(y_pos, performance, xerr=error, color=cols, align='center')
+    ax.set_yticks(y_pos, labels=models, fontsize=15)
+    ax.set_xticks([0.0, 20, 40, 60, 80, 100, 120], labels=['0', '20', '40', '60', '80', '100', ''], fontsize=20)
+    ax.bar_label(hbars, fmt='%.2f', fontsize=15)
+    ax.set_xlabel('Accuracy', fontsize=15)
+
+    pt.tight_layout()
+    # pt.show()
+    pt.savefig('main_results_histogram.pdf', dpi=300)
+
 
 if __name__ == "__main__":
     # destinations_distribution()
     # autocorrelation()
-    # traj_and_real_pos()
-    real_pos()
+    traj_and_real_pos()
+    # real_pos()
     # fft_visualization(30)
