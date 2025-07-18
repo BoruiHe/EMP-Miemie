@@ -335,6 +335,110 @@ def main_results_histogram():
     # pt.show()
     pt.savefig('main_results_histogram.pdf', dpi=300)
 
+def vis_MH():
+    class conf():
+        def __init__(self, dataset):
+            self.modalities = 'PVP'
+            self.d_model = 1024
+            self.num_class = 2
+            if dataset == 'RP':
+                self.seq_len = 24
+                self.pred_len = 12
+            else:
+                self.seq_len = 60
+                self.pred_len = 30
+            self.num_Templayers = 6
+            self.num_Timeslayers = 2
+            self.num_convlayers = 4
+            self.num_SPAconvlayers = 6
+            self.num_TEMconvlayers = 6
+            self.hid_SPA = 64
+            self.hid_TEM = 64
+            self.motion_dim = 25
+            self.fft_threshold = 30
+            self.top_k = 3
+            self.inc_dim = 256
+
+    cm = 'inferno'
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['text.usetex'] = True
+
+    for p in ['RP_pl12_PVP', 'VP_pl30_PVP']:
+        model = Model(conf(p[:2]))
+        
+        seed = 5
+        model_p = os.path.join('checkpoints', p, str(seed), 'checkpoint.pth')
+        model.load_state_dict(torch.load(model_p, weights_only=True, map_location=torch.device('cpu')))
+
+        weights = model.motion_head.projection.weight.permute(1,0).detach().numpy()
+        fig, ax = plt.subplot_mosaic([['top', 'top'],
+                                    ['lower left', 'lower right']],
+                                    layout='constrained')
+        im1=ax['top'].imshow(weights[:100,], cmap=cm)
+        im2=ax['lower left'].imshow(weights, cmap=cm)
+        if 'RP' in p:
+            im3=ax['lower right'].imshow(weights[-25:,:25], cmap=cm)
+        else:
+            im3=ax['lower right'].imshow(weights[250:275,:25], cmap=cm)
+        fig.colorbar(im2, pad=0.03, ax=ax.values())
+        # plt.show(block=True)
+        plt.savefig(os.path.join(f'{p[:2]}_MotionHead_vis.pdf'), dpi=300)
+        plt.close()
+
+
+def vis_VH():
+    class conf():
+        def __init__(self, dataset):
+            self.modalities = 'PVP'
+            self.d_model = 1024
+            self.num_class = 2
+            if dataset == 'RP':
+                self.seq_len = 24
+                self.pred_len = 12
+            else:
+                self.seq_len = 60
+                self.pred_len = 30
+            self.num_Templayers = 6
+            self.num_Timeslayers = 2
+            self.num_convlayers = 4
+            self.num_SPAconvlayers = 6
+            self.num_TEMconvlayers = 6
+            self.hid_SPA = 64
+            self.hid_TEM = 64
+            self.motion_dim = 25
+            self.fft_threshold = 30
+            self.top_k = 3
+            self.inc_dim = 256
+
+    cm = 'inferno'
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['text.usetex'] = True
+
+    for p in ['VP_pl30_PVP']:
+        model = Model(conf(p[:2]))
+        
+        seed = 5
+        model_p = os.path.join('checkpoints', p, str(seed), 'checkpoint.pth')
+        model.load_state_dict(torch.load(model_p, weights_only=True, map_location=torch.device('cpu')))
+
+        weights = model.egovision_head.projection.weight.permute(1,0).detach()
+        weights = weights.reshape(20, 60, 8, 8, 1024).permute(1,0,2,3,4).flatten(end_dim=3)
+        weights = weights.numpy()
+        fig, ax = plt.subplot_mosaic([['top', 'top'],
+                                    ['lower left', 'lower right']],
+                                    layout='constrained')
+        im1=ax['top'].imshow(weights[:1280,], cmap=cm)
+        im2=ax['lower left'].imshow(weights, cmap=cm)
+        if 'RP' in p:
+            im3=ax['lower right'].imshow(weights[-1280:,:1280], cmap=cm)
+        else:
+            i = 74
+            im3=ax['lower right'].imshow(weights[1024*i:1024*(i+1),], cmap=cm)
+        fig.colorbar(im2, pad=0.03, ax=ax.values())
+        # plt.show(block=True)
+        plt.savefig(os.path.join(f'{p[:2]}_MotionHead_vis.pdf'), dpi=300)
+        plt.close()
+
 
 if __name__ == "__main__":
     # destinations_distribution()
