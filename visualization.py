@@ -87,7 +87,7 @@ def autocorrelation():
     # Other
     for name in name_list[:8]:
         data, data_log = [], []
-        path = os.path.join(os.path.dirname(os.getcwd()), 'data', 'other_data', name)
+        path = os.path.join(os.path.dirname(os.getcwd()), 'other_data', name)
         if '.csv' in name:
             df_raw = pd.read_csv(path)
             df_raw = df_raw.drop('date', axis=1)
