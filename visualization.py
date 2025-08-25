@@ -162,6 +162,68 @@ def autocorrelation():
     # pt.show()
     pt.savefig('plots/autocorrelation.pdf', dpi=300)
 
+def autocorrelation_short():
+    name_list = ['ETTh1.csv', 'PEMS03.npz', 'f_0000_walk1.npz']
+    fig, axes = pt.subplots(1,3, sharey=True, figsize=(19.2, 2.7))
+    axes[0].set_ylabel('Autocorrelation', fontsize=20, loc='center')
+
+    # Other
+    for name in name_list[:2]:
+        data, data_log = [], []
+        path = os.path.join(os.path.dirname(os.getcwd()), 'other_data', name)
+        if '.csv' in name:
+            df_raw = pd.read_csv(path)
+            df_raw = df_raw.drop('date', axis=1)
+            data = df_raw.values.astype(np.float32)
+        elif '.npz' in name:
+            data = np.load(path)['data']
+            data = data.squeeze()
+        _, col = data.shape
+
+        for c in range(col):
+            autocorrelation = smt.stattools.acf(data[:,c], nlags=720)
+            axes[name_list.index(name) % 3].plot(autocorrelation)
+        axes[name_list.index(name) % 3].set_title(name[:-4], fontsize=25)
+        axes[name_list.index(name) % 3].tick_params(axis='both', which='major', labelsize=20)
+        if 'ETTh' in name:
+            axes[name_list.index(name) % 3].set_xlabel('Time (hours)', fontsize=25, color='red', loc='center')
+        elif 'ETTm' in name:
+            axes[name_list.index(name) % 3].set_xlabel('Time (15 minutes)', fontsize=20, color='red', loc='center')
+        elif 'Weather' in name:
+            axes[name_list.index(name) % 3].set_xlabel('Time (10 minutes)', fontsize=20, color='red', loc='center')
+        elif 'ILI' in name:
+            axes[name_list.index(name) % 3].set_xlabel('Time (weeks)', fontsize=20, color='red', loc='center')
+        elif 'Exchange_rate' in name:
+            axes[name_list.index(name) % 3].set_xlabel('Time (days)', fontsize=20, color='red', loc='center')
+        elif 'Traffic' in name:
+            axes[name_list.index(name) % 3].set_xlabel('Time (hours)', fontsize=20, color='red', loc='center')
+        elif 'Electricity' in name:
+            axes[name_list.index(name) % 3].set_xlabel('Time (hours)', fontsize=20, color='red', loc='center')
+        elif 'PEMS' in name:
+            axes[name_list.index(name) % 3].set_xlabel('Time (5 minutes)', fontsize=25, color='red', loc='center')
+
+    # VP
+    joint_index = list(range(17)) + list(range(18,26))
+    for name in name_list[2:]:
+        file_path = os.path.join('data', name)
+        pos = np.load(file_path)['ajp'][:,joint_index]
+        _, col = pos.shape
+
+        for c in range(col):
+            autocorrelation = smt.stattools.acf(pos[:,c], nlags=368)
+            axes[name_list.index(name) % 3].plot(autocorrelation)
+        if name[0] == 'f':
+            title = 'SimP Fall Epi'
+        else:
+            title = 'SimP Walk Epi'
+        axes[name_list.index(name) % 3].set_title(title, fontsize=25)
+        axes[name_list.index(name) % 3].tick_params(axis='both', which='major', labelsize=20)
+        axes[name_list.index(name) % 3].set_xlabel('Time (time steps)', fontsize=25, color='red', loc='center')
+
+    pt.tight_layout()
+    # pt.show()
+    pt.savefig('plots/autocorrelation_short.pdf', dpi=300)
+    
 def traj_and_real_pos():
     pt.rcParams['text.usetex'] = True
     name_list = ['2025_03_12_stdev0.0/bufs_02_6.pkl', '2025_03_09_stdev0.5/bufs_02_0.pkl', 'fps30/f_0000_walk1.npz', 'fps30/n_0000_walk1.npz']
