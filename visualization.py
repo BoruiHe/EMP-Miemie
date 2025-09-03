@@ -384,7 +384,7 @@ def main_results_histogram():
     error.append(a.std()*100)
     error.append(b.std()*100)
 
-    models = ('Egoalls_RP', 'Egoalls_VP', 'Flowformer_RP', 'Flowformer_VP', 'TimesNet_RP', 'TimesNet_VP', 'Ours_RP', 'Ours_VP')
+    models = ('Egoalls_RP', 'Egoalls_SimP', 'Flowformer_RP', 'Flowformer_SimP', 'TimesNet_RP', 'TimesNet_SimP', 'Ours_RP', 'Ours_SimP')
     y_pos = np.arange(len(models))
     cols = ['#C7DEE9', '#C7DEE9', '#A4D9F4', '#A4D9F4', '#7C94B7', '#7C94B7', '#32417A', '#32417A']
     hbars = ax.barh(y_pos, performance, xerr=error, color=cols, align='center')
