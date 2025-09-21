@@ -355,7 +355,7 @@ def fft_visualization(threshold):
 def main_results_histogram():
     pt.rcParams['text.usetex'] = True
     performance, error = [], []
-    fig, ax = pt.subplots(1,1)
+    fig, ax = pt.subplots(1,1,figsize=(12.80*1.5, 9.60))
     a = np.load('RP_Egofalls.npy')
     b = np.load('VP_Egofalls.npy')
     performance.append(a.mean()*100)
@@ -388,14 +388,14 @@ def main_results_histogram():
     y_pos = np.arange(len(models))
     cols = ['#C7DEE9', '#C7DEE9', '#A4D9F4', '#A4D9F4', '#7C94B7', '#7C94B7', '#32417A', '#32417A']
     hbars = ax.barh(y_pos, performance, xerr=error, color=cols, align='center')
-    ax.set_yticks(y_pos, labels=models, fontsize=15)
-    ax.set_xticks([0.0, 20, 40, 60, 80, 100, 120], labels=['0', '20', '40', '60', '80', '100', ''], fontsize=20)
-    ax.bar_label(hbars, fmt='%.2f', fontsize=15)
-    ax.set_xlabel('Accuracy', fontsize=15)
+    ax.set_yticks(y_pos, labels=models, fontsize=40)
+    ax.set_xticks([0.0, 20, 40, 60, 80, 100, 120], labels=['0', '20', '40', '60', '80', '100', ''], fontsize=40)
+    ax.bar_label(hbars, fmt='%.2f', fontsize=40)
+    ax.set_xlabel('Accuracy', fontsize=40)
 
     pt.tight_layout()
     # pt.show()
-    pt.savefig('main_results_histogram.pdf', dpi=300)
+    pt.savefig('main_results_histogram_long.pdf', dpi=300)
 
 def vis_MH():
     class conf():
